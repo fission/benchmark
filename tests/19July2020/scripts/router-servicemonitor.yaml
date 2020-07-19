@@ -1,0 +1,20 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  generation: 1
+  labels:
+    application: fission-router
+    svc: router
+  name: router-sm
+  namespace: fission
+spec:
+  endpoints:
+  - path: /metrics
+    port: metrics
+  namespaceSelector:
+    matchNames:
+    - fission
+  selector:
+    matchLabels:
+      application: fission-router
+      svc: router
