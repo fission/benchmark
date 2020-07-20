@@ -1,4 +1,4 @@
-# Test: 19 July 2020
+# Test: 19-20 July 2020
 
 ## Function
 
@@ -8,6 +8,86 @@ The function is a golang function which runs go-routines to simulate CPU load fo
 $ time fission fn test --name hello-go
 {" Hello, world! Time_stamp": "2020-07-19T15:57:01Z"}fission fn test --name hello-go  0.08s user 0.04s system 12% cpu 0.887 total
 ```
+
+# Test Summary
+
+|Sr No.|Virtual Users| Ramp up Plan | Total req handled| Error Rate|RPS | Request per hour (Extrapolated)|Notes|
+|---|---|--- |---|---|--- |---|---|
+|1 (20 July)|1000|5m 0-1000, 1000 for 30m |2566249|01%|1187|4.2M|2 nodes of c2-standard-4|
+|2 (19 July)|1000|3m 0-1000, 1000 for 30m |1582901|00%|0732|2.6M|1 node of c2-standard-4 & 2 of e2-medium|
+|1 (20 July)|3000|5m 0-1000, 1000 for 30m |2052633|13%|0805|2.8M|1 node of c2-standard-4 & 2 of e2-medium|
+
+# Test 1 (20 July 2020)
+
+The cluster is a 2 node GKE cluster with 
+- 2 nodes of c2-standard-4  : 4 vCPU and 16GB RAM
+
+K6 was run on a c2-standard-4 machines and it was fully used only for that purpose.
+
+## 1000 virtual users test - Router Cache disabled
+
+- The virtual user ramps up to 1000 over 5 minutes and stays at 1000 for 30 minutes.
+
+- The function is hit 2566249 times with a 99% success rate (Just one failure) and 1200 RPS (4.3M per hour)
+
+- Execution starts with 1 pod but scales upto 5 as load increases. The intial pod is warm (New deployment executor).
+
+
+```
+stages: [
+        { duration: "1m",  target: 100 }, // simulate ramp-up of traffic from 1 to 500 users over 1 minutes.
+        { duration: "4m",  target: 1000 }, // ramp-up to 5000 users over 4 minutes (peak hour starts)
+        { duration: "30m",  target: 1000 }, // Stay at 5K users for 30 min
+        { duration: "1m",  target: 0 }, // stay at 500 users for short amount of time (peak hour)
+    ],
+```
+
+**K6 run summary:**
+
+```
+    ✗ status is 200
+     ↳  99% — ✓ 2566249 / ✗ 1
+
+    checks.....................: 99.99%  ✓ 2566249 ✗ 1
+    data_received..............: 485 MB  224 kB/s
+    data_sent..................: 267 MB  124 kB/s
+    http_req_blocked...........: avg=430.81µs min=88.23µs  med=178.67µs max=231.3ms  p(5)=136.21µs p(10)=142.7µs  p(15)=147.57µs p(20)=151.83µs p(25)=155.83µs p(30)=159.77µs
+    http_req_connecting........: avg=386.8µs  min=67.35µs  med=136.6µs  max=186.26ms p(5)=100.7µs  p(10)=105.87µs p(15)=109.92µs p(20)=113.51µs p(25)=116.9µs  p(30)=120.25µs
+    http_req_duration..........: avg=765.21ms min=138.19µs med=612.16ms max=7.97s    p(5)=317.74ms p(10)=363.56ms p(15)=390.79ms p(20)=413.18ms p(25)=442.43ms p(30)=474.64ms
+    http_req_receiving.........: avg=105.46µs min=0s       med=45.59µs  max=401.42ms p(5)=31.2µs   p(10)=33.93µs  p(15)=35.75µs  p(20)=37.24µs  p(25)=38.58µs  p(30)=39.89µs
+    http_req_sending...........: avg=93.03µs  min=12.14µs  med=35.34µs  max=69.53ms  p(5)=24.5µs   p(10)=26.43µs  p(15)=27.66µs  p(20)=28.68µs  p(25)=29.64µs  p(30)=30.62µs
+    http_req_tls_handshaking...: avg=0s       min=0s       med=0s       max=0s       p(5)=0s       p(10)=0s       p(15)=0s       p(20)=0s       p(25)=0s       p(30)=0s
+    http_req_waiting...........: avg=765.01ms min=108.08µs med=611.96ms max=7.97s    p(5)=317.6ms  p(10)=363.4ms  p(15)=390.64ms p(20)=413.01ms p(25)=442.22ms p(30)=474.44ms
+    http_reqs..................: 2566250 1187.793906/s
+    iteration_duration.........: avg=765.79ms min=451.15µs med=612.77ms max=7.97s    p(5)=318.11ms p(10)=363.98ms p(15)=391.24ms p(20)=413.63ms p(25)=442.95ms p(30)=475.18ms
+    iterations.................: 2566250 1187.793906/s
+    vus........................: 6       min=2     max=1000
+    vus_max....................: 1000    min=1000  max=1000
+```
+
+### Resource Consumption
+
+#### Router
+
+![Router](./assets/1_1k_router.png)
+
+#### Function pods
+
+![Function Pod](./assets/1_1k_functionpod.png)
+
+#### Executor
+
+![Function Pod](./assets/1_1k_executor.png)
+
+#### Prometheus Server
+
+![Prometheus](./assets/1_1k_prometheus.png)
+
+#### Cluster
+
+![Cluster](./assets/1_1k_cluster.png)
+
+# Test 2 (19 July 2020)
 
 The cluster is a 3 node GKE cluster with 
 - 2 nodes of e2-medium      : 2 vCPU and 04GB RAM (CPU each at 50% time)
@@ -66,6 +146,7 @@ K6 was run on a c2-standard-4 machines and it was fully used only for that purpo
 
 **Function Pod**
 ![Router](./assets/1k_newdeploy_pod.png)
+
 
 ## 3000 virtual users test
 
