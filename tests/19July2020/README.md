@@ -15,7 +15,7 @@ $ time fission fn test --name hello-go
 |---|---|--- |---|---|--- |---|---|
 |1 (20 July)|1000|5m 0-1000, 1000 for 30m |2566249|01%|1187|4.2M|2 nodes of c2-standard-4|
 |2 (19 July)|1000|3m 0-1000, 1000 for 30m |1582901|00%|0732|2.6M|1 node of c2-standard-4 & 2 of e2-medium|
-|1 (20 July)|3000|5m 0-1000, 1000 for 30m |2052633|13%|0805|2.8M|1 node of c2-standard-4 & 2 of e2-medium|
+|1 (19 July)|3000|11m 0-3000, 3000 for 30m |2052633|13%|0805|2.8M|1 node of c2-standard-4 & 2 of e2-medium|
 
 # Test 1 (20 July 2020)
 
