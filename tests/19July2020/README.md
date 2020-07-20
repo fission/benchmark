@@ -21,6 +21,7 @@ $ time fission fn test --name hello-go
 
 The cluster is a 2 node GKE cluster with 
 - 2 nodes of c2-standard-4  : 4 vCPU and 16GB RAM
+- Router caching is disabled:  `--set roundTrip.disableKeepAlive=true` (Only for test1)
 
 K6 was run on a c2-standard-4 machines and it was fully used only for that purpose.
 
