@@ -1,0 +1,20 @@
+apiVersion: fission.io/v1
+kind: HTTPTrigger
+metadata:
+  creationTimestamp: null
+  name: hellogo
+  namespace: default
+spec:
+  createingress: false
+  functionref:
+    functionweights: null
+    name: hello-go
+    type: name
+  host: ""
+  ingressconfig:
+    annotations: null
+    host: '*'
+    path: /hellogo
+    tls: ""
+  method: GET
+  relativeurl: /hellogo

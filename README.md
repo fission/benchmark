@@ -1,2 +1,3 @@
-# benchmark
-Fission load/stress test resources and data of past executions.
+# Fission Benchmarks
+
+This repo has details of load & stress tests conduceted on Fission and their details documented
